@@ -33,7 +33,7 @@ use OCA\Mail\Db\Message;
 use OCA\Mail\Db\MessageMapper as DbMessageMapper;
 use OCA\Mail\Db\Tag;
 use OCA\Mail\Db\TagMapper;
-use OCA\Mail\Events\BeforeMessageDeletedEvent;
+use OCA\Mail\Events\BeforeMessagesDeletedEvent;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Folder;
 use OCA\Mail\IMAP\FolderMapper;
@@ -181,7 +181,7 @@ class MailManagerTest extends TestCase {
 		$this->eventDispatcher->expects($this->once())
 			->method('dispatch')
 			->with(
-				$this->equalTo(BeforeMessageDeletedEvent::class),
+				$this->equalTo(BeforeMessagesDeletedEvent::class),
 				$this->anything()
 			);
 		$this->mailboxMapper->expects($this->once())
@@ -190,10 +190,10 @@ class MailManagerTest extends TestCase {
 			->willThrowException(new DoesNotExistException(""));
 		$this->expectException(ServiceException::class);
 
-		$this->manager->deleteMessage(
+		$this->manager->deleteMessages(
 			$account,
 			'INBOX',
-			123
+			[123]
 		);
 	}
 
@@ -206,7 +206,7 @@ class MailManagerTest extends TestCase {
 		$this->eventDispatcher->expects($this->once())
 			->method('dispatch')
 			->with(
-				$this->equalTo(BeforeMessageDeletedEvent::class),
+				$this->equalTo(BeforeMessagesDeletedEvent::class),
 				$this->anything()
 			);
 		$this->mailboxMapper->expects($this->once())
@@ -219,10 +219,10 @@ class MailManagerTest extends TestCase {
 			->willThrowException(new DoesNotExistException(""));
 		$this->expectException(ServiceException::class);
 
-		$this->manager->deleteMessage(
+		$this->manager->deleteMessages(
 			$account,
 			'INBOX',
-			123
+			[123]
 		);
 	}
 
@@ -255,14 +255,14 @@ class MailManagerTest extends TestCase {
 			->with(
 				$client,
 				'INBOX',
-				123,
+				[123],
 				'Trash'
 			);
 
-		$this->manager->deleteMessage(
+		$this->manager->deleteMessages(
 			$account,
 			'INBOX',
-			123
+			[123]
 		);
 	}
 
@@ -295,13 +295,13 @@ class MailManagerTest extends TestCase {
 			->with(
 				$client,
 				'Trash',
-				123
+				[123]
 			);
 
-		$this->manager->deleteMessage(
+		$this->manager->deleteMessages(
 			$account,
 			'Trash',
-			123
+			[123]
 		);
 	}
 

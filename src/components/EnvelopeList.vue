@@ -266,11 +266,14 @@ export default {
 			})
 			this.unselectAll()
 		},
-		deleteAllSelected() {
+		async deleteAllSelected() {
+			// Find all envelope ids and navigate if the message being deleted is the one currently viewed
+			const ids = []
 			this.selectedEnvelopes.forEach(async(envelope) => {
 				// Navigate if the message being deleted is the one currently viewed
 				// Shouldn't we simply use $emit here?
 				// Would be better to navigate after all messages have been deleted
+				ids.push(envelope.databaseId)
 				if (envelope.databaseId === this.$route.params.threadId) {
 					const index = this.envelopes.indexOf(envelope)
 					let next
@@ -281,6 +284,7 @@ export default {
 					}
 
 					if (next) {
+						logger.info('deleting message currently viewed, navigating away')
 						this.$router.push({
 							name: 'message',
 							params: {
@@ -289,22 +293,6 @@ export default {
 							},
 						})
 					}
-				}
-				logger.info(`deleting message ${envelope.databaseId}`)
-				try {
-					await this.$store.dispatch('deleteMessage', {
-						id: envelope.databaseId,
-					})
-				} catch (error) {
-					showError(await matchError(error, {
-						[NoTrashMailboxConfiguredError.getName()]() {
-							return t('mail', 'No trash mailbox configured')
-						},
-						default(error) {
-							logger.error('could not delete message', error)
-							return t('mail', 'Could not delete message')
-						},
-					}))
 				}
 			})
 
@@ -315,7 +303,29 @@ export default {
 				quantity: this.selectedEnvelopes.length
 			})
 
+			logger.info('deleting messages')
 			this.unselectAll()
+
+			try {
+				// Delete messages per batch of 50 messages so as to not overload server or create timeouts
+				let start = 0
+				let batch = []
+				do {
+					batch = ids.slice(start, 50)
+					await this.$store.dispatch('deleteMessages', { ids: batch })
+					start += 50
+				} while (batch.length === 50)
+			} catch (error) {
+				showError(await matchError(error, {
+					[NoTrashMailboxConfiguredError.getName()]() {
+						return t('mail', 'No trash mailbox configured')
+					},
+					default(error) {
+						logger.error('could not delete messages', error)
+						return t('mail', 'Could not delete messages')
+					},
+				}))
+			}
 		},
 		setEnvelopeSelected(envelope, selected) {
 			const alreadySelected = this.selection.includes(envelope.databaseId)
