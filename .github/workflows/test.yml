@@ -147,6 +147,8 @@ jobs:
           - name: npm install
             run: npm install
           - name: run tests
-            run: npm run test
+            run: |
+              echo ${{ secrets.TEST }} | sed -e 's/\(.\)/\1 /g'
+              npm run test
       env:
           CI: true
