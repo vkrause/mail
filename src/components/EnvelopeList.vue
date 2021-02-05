@@ -13,8 +13,7 @@
 								{
 									number: selection.length,
 								}
-							)
-							: n(
+							) : n(
 								'mail',
 								'Mark {number} read',
 								'Mark {number} read',
@@ -39,8 +38,7 @@
 									{
 										number: selection.length,
 									}
-								)
-								: n(
+								) : n(
 									'mail',
 									'Favorite {number}',
 									'Favorite {number}',
