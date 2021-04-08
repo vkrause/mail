@@ -1,4 +1,4 @@
-	<?php
+<?php
 
 declare(strict_types=1);
 
@@ -49,7 +49,6 @@ use OCA\Mail\Model\IMAPMessage;
 use OCA\Mail\Service\MailManager;
 use OCA\Mail\Service\AccountService;
 use OCA\Mail\Service\ItineraryService;
-use OCA\Mail\Service\MailManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use ChristophWurst\Nextcloud\Testing\TestCase;
