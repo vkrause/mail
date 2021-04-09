@@ -43,7 +43,6 @@ use Horde_Imap_Client_Exception;
 use OCA\Mail\Contracts\IMailManager;
 use OCA\Mail\IMAP\IMAPClientFactory;
 use OCA\Mail\Exception\ClientException;
-use OCA\Mail\Events\BeforeMessagesDeletedEvent;
 use OCA\Mail\Events\MessagesDeletedEvent;
 use OCA\Mail\Events\MessageFlaggedEvent;
 use OCA\Mail\Exception\ServiceException;
@@ -286,11 +285,6 @@ class MailManager implements IMailManager {
 	public function deleteMessages(Account $account,
 								  string $mailboxId,
 								  array $messageIds): void {
-		$this->eventDispatcher->dispatch(
-			BeforeMessagesDeletedEvent::class,
-			new BeforeMessagesDeletedEvent($account, $mailboxId, $messageIds)
-		);
-
 		try {
 			$sourceMailbox = $this->mailboxMapper->find($account, $mailboxId);
 		} catch (DoesNotExistException $e) {

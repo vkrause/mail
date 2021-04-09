@@ -33,7 +33,6 @@ use OCA\Mail\Db\Message;
 use OCA\Mail\Db\MessageMapper as DbMessageMapper;
 use OCA\Mail\Db\Tag;
 use OCA\Mail\Db\TagMapper;
-use OCA\Mail\Events\BeforeMessagesDeletedEvent;
 use OCA\Mail\Exception\ServiceException;
 use OCA\Mail\Folder;
 use OCA\Mail\IMAP\FolderMapper;
@@ -178,12 +177,6 @@ class MailManagerTest extends TestCase {
 	public function testDeleteMessageSourceFolderNotFound(): void {
 		/** @var Account|MockObject $account */
 		$account = $this->createMock(Account::class);
-		$this->eventDispatcher->expects($this->once())
-			->method('dispatch')
-			->with(
-				$this->equalTo(BeforeMessagesDeletedEvent::class),
-				$this->anything()
-			);
 		$this->mailboxMapper->expects($this->once())
 			->method('find')
 			->with($account, 'INBOX')
@@ -203,12 +196,6 @@ class MailManagerTest extends TestCase {
 		$mailAccount = new MailAccount();
 		$mailAccount->setTrashMailboxId(123);
 		$account->method('getMailAccount')->willReturn($mailAccount);
-		$this->eventDispatcher->expects($this->once())
-			->method('dispatch')
-			->with(
-				$this->equalTo(BeforeMessagesDeletedEvent::class),
-				$this->anything()
-			);
 		$this->mailboxMapper->expects($this->once())
 			->method('find')
 			->with($account, 'INBOX')
