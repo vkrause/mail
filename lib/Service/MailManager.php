@@ -48,7 +48,6 @@ use OCA\Mail\Events\MessagesDeletedEvent;
 use OCA\Mail\Events\MessageFlaggedEvent;
 use OCA\Mail\Exception\ServiceException;
 use OCP\EventDispatcher\IEventDispatcher;
-use OCA\Mail\Events\BeforeMessageDeletedEvent;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCA\Mail\Db\MessageMapper as DbMessageMapper;
 use Horde_Imap_Client_Exception_NoSupportExtension;

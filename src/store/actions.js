@@ -318,7 +318,7 @@ export default {
 		const envelopes = await dispatch('fetchNextEnvelopes', {
 			mailboxId,
 			query,
-			quantity: PAGE_SIZE
+			quantity: PAGE_SIZE,
 		})
 		return envelopes
 	},
