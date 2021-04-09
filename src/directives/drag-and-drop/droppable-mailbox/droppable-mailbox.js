@@ -123,6 +123,7 @@ export class DroppableMailbox {
 				const id = envelope.envelopeId
 				const item = document.querySelector(`[data-envelope-id="${id}"]`)
 				item.removeAttribute('draggable-envelope')
+				return id
 			})
 			logger.error('could not process dropped messages', error)
 		} finally {
