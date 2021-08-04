@@ -61,7 +61,9 @@ class ImapServerDetector {
 		 */
 		$mxHosts = $this->mxRecord->query($host);
 		if ($mxHosts) {
-			foreach ($mxHosts as $mxHost) {
+			// also test the parent domain
+			$toTest = array_unique(array_merge($mxHosts, array_map([$this, 'stripSubdomainForMx'], $mxHosts)));
+			foreach ($toTest as $mxHost) {
 				$result = $this->imapConnectivityTester->test(
 					$email,
 					$mxHost,
@@ -92,5 +94,14 @@ class ImapServerDetector {
 			$password,
 			$name
 		);
+	}
+
+	public function stripSubdomainForMx(string $domain): string {
+		$labels = explode('.', $domain);
+
+		$top = count($labels) >= 2 ? array_pop($labels) : '';
+		$second = array_pop($labels);
+
+		return $second . '.' . $top;
 	}
 }

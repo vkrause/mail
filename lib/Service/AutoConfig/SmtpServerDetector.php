@@ -67,8 +67,18 @@ class SmtpServerDetector {
 		 */
 		$mxHosts = $this->mxRecord->query($host);
 		if ($mxHosts) {
-			foreach ($mxHosts as $mxHost) {
-				$result = $this->smtpConnectivityTester->test($account, $mxHost, [$user, $email], $password);
+			// also test the parent domain
+			$toTest = array_unique(array_merge($mxHosts, array_map([$this, 'stripSubdomainForMx'], $mxHosts)));
+			foreach ($toTest as $mxHost) {
+				$result = $this->smtpConnectivityTester->test(
+					$account,
+					$mxHost,
+					[
+						$user,
+						$email
+					],
+					$password
+				);
 				if ($result) {
 					return true;
 				}
@@ -79,6 +89,24 @@ class SmtpServerDetector {
 		 * SMTP login with full email address as user
 		 * works for a lot of providers (e.g. Google Mail)
 		 */
-		return $this->smtpConnectivityTester->test($account, $host, [$user, $email], $password, true);
+		return $this->smtpConnectivityTester->test(
+			$account,
+			$host,
+			[
+				$user,
+				$email
+			],
+			$password,
+			true
+		);
+	}
+
+	public function stripSubdomainForMx(string $domain): string {
+		$labels = explode('.', $domain);
+
+		$top = count($labels) >= 2 ? array_pop($labels) : '';
+		$second = array_pop($labels);
+
+		return $second . '.' . $top;
 	}
 }
