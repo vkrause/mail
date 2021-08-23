@@ -56,4 +56,13 @@ class MxRecord {
 		// TODO: sort by weight
 		return $mxRecords;
 	}
+
+	public function stripSubdomain(string $domain): string {
+		$labels = explode('.', $domain);
+
+		$top = count($labels) >= 2 ? array_pop($labels) : '';
+		$second = array_pop($labels);
+
+		return $second . '.' . $top;
+	}
 }

@@ -68,7 +68,7 @@ class SmtpServerDetector {
 		$mxHosts = $this->mxRecord->query($host);
 		if ($mxHosts) {
 			// also test the parent domain
-			$toTest = array_unique(array_merge($mxHosts, array_map([$this, 'stripSubdomainForMx'], $mxHosts)));
+			$toTest = array_unique(array_merge($mxHosts, array_map([$this->mxRecord, 'stripSubdomain'], $mxHosts)));
 			foreach ($toTest as $mxHost) {
 				$result = $this->smtpConnectivityTester->test(
 					$account,
@@ -99,14 +99,5 @@ class SmtpServerDetector {
 			$password,
 			true
 		);
-	}
-
-	public function stripSubdomainForMx(string $domain): string {
-		$labels = explode('.', $domain);
-
-		$top = count($labels) >= 2 ? array_pop($labels) : '';
-		$second = array_pop($labels);
-
-		return $second . '.' . $top;
 	}
 }
