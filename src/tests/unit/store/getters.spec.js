@@ -91,7 +91,7 @@ describe('Vuex store getters', () => {
 				1,
 				2,
 				3,
-			]
+			],
 		}
 		state.envelopes[2] = {
 			databaseId: 1,
@@ -117,7 +117,7 @@ describe('Vuex store getters', () => {
 					1,
 					2,
 					3,
-				]
+				],
 			},
 			{
 				databaseId: 1,
@@ -130,5 +130,53 @@ describe('Vuex store getters', () => {
 				mailboxId: 13,
 			},
 		])
+	})
+
+	it('return envelopes by thread root id', () => {
+		state.envelopes[0] = {
+			databaseId: 1,
+			uid: 101,
+			mailboxId: 13,
+			threadRootId: '123-456-789',
+		}
+		state.envelopes[1] = {
+			databaseId: 2,
+			uid: 102,
+			mailboxId: 13,
+			threadRootId: '123-456-789',
+		}
+		state.envelopes[2] = {
+			databaseId: 3,
+			uid: 103,
+			mailboxId: 13,
+			threadRootId: '234-567-890',
+		}
+		state.envelopes[3] = {
+			databaseId: 4,
+			uid: 104,
+			mailboxId: 13,
+			threadRootId: '234-567-890',
+		}
+		const getters = bindGetters()
+
+		const envelopesA = getters.getEnvelopesByThreadRootId('123-456-789')
+		expect(envelopesA).to.be.length(2)
+		expect(envelopesA).to.deep.equal([
+			{
+				databaseId: 1,
+				uid: 101,
+				mailboxId: 13,
+				threadRootId: '123-456-789',
+			},
+			{
+				databaseId: 2,
+				uid: 102,
+				mailboxId: 13,
+				threadRootId: '123-456-789',
+			},
+		])
+
+		const envelopesB = getters.getEnvelopesByThreadRootId('345-678-901')
+		expect(envelopesB).to.be.empty
 	})
 })
