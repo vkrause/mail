@@ -25,9 +25,11 @@ declare(strict_types=1);
 
 namespace OCA\Mail\Db;
 
+use InvalidArgumentException;
 use OCA\Mail\Account;
 use OCA\Mail\Address;
 use OCA\Mail\AddressList;
+use OCA\Mail\Contracts\IMailSearch;
 use OCA\Mail\IMAP\Threading\DatabaseMessage;
 use OCA\Mail\Service\Search\Flag;
 use OCA\Mail\Service\Search\FlagExpression;
@@ -620,10 +622,16 @@ class MessageMapper extends QBMapper {
 	 * @param SearchQuery $query
 	 * @param int|null $limit
 	 * @param int[]|null $uids
+	 * @param string $sortOrder
+	 * @psalm-param IMailSearch::ORDER_* $sortOrder
 	 *
 	 * @return int[]
 	 */
-	public function findIdsByQuery(Mailbox $mailbox, SearchQuery $query, ?int $limit, array $uids = null): array {
+	public function findIdsByQuery(Mailbox $mailbox,
+								   SearchQuery $query,
+								   ?int $limit,
+								   array $uids = null,
+								   string $sortOrder): array {
 		$qb = $this->db->getQueryBuilder();
 
 		if ($this->needDistinct($query)) {
@@ -711,7 +719,13 @@ class MessageMapper extends QBMapper {
 
 		$select->andWhere($qb->expr()->isNull('m2.id'));
 
-		$select->orderBy('m.sent_at', 'desc');
+		if ($sortOrder === IMailSearch::ORDER_NEWEST_FIRST) {
+			$select->orderBy('m.sent_at', 'desc');
+		} else if ($sortOrder === IMailSearch::ORDER_OLDEST_FIRST) {
+			$select->orderBy('m.sent_at', 'asc');
+		} else {
+			throw new InvalidArgumentException("invalid sort order $sortOrder");
+		}
 
 		if ($limit !== null) {
 			$select->setMaxResults($limit);

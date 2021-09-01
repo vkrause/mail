@@ -94,7 +94,13 @@ const findIndividualMailboxes = curry((getMailboxes, specialRole) =>
 	)
 )
 
-const combineEnvelopeLists = pipe(flatten, orderBy(prop('dateInt'), 'desc'))
+const combineEnvelopeLists = (sortOrder) => {
+	if (sortOrder === 'oldest-first') {
+		return pipe(flatten, orderBy(prop('dateInt'), 'desc'))
+	}
+
+	return pipe(flatten, orderBy(prop('dateInt'), 'desc'))
+}
 
 export default {
 	savePreference({ commit, getters }, { key, value }) {
@@ -287,7 +293,7 @@ export default {
 			const fetchUnifiedEnvelopes = pipe(
 				findIndividualMailboxes(getters.getMailboxes, mailbox.specialRole),
 				fetchIndividualLists,
-				andThen(combineEnvelopeLists),
+				andThen(combineEnvelopeLists(getters.getPreference('sort-order'))),
 				andThen(sliceToPage),
 				andThen(
 					tap(
@@ -316,7 +322,7 @@ export default {
 					)
 				)
 			)
-		)(mailboxId, query, undefined, PAGE_SIZE)
+		)(mailboxId, query, undefined, PAGE_SIZE, getters.getPreference('sort-order'))
 	},
 	async fetchNextEnvelopePage({ commit, getters, dispatch }, { mailboxId, query }) {
 		const envelopes = await dispatch('fetchNextEnvelopes', {
@@ -342,10 +348,10 @@ export default {
 			const nextLocalUnifiedEnvelopes = pipe(
 				findIndividualMailboxes(getters.getMailboxes, mailbox.specialRole),
 				map(getIndivisualLists(query)),
-				combineEnvelopeLists,
+				combineEnvelopeLists(getters.getPreference('sort-order')),
 				filter(
 					where({
-						dateInt: gt(cursor),
+						dateInt: gt(cursor), // TODO: make it work
 					})
 				),
 				slice(0, quantity)
@@ -412,7 +418,7 @@ export default {
 			return Promise.reject(new Error('Cannot find last envelope. Required for the mailbox cursor'))
 		}
 
-		return fetchEnvelopes(mailboxId, query, lastEnvelope.dateInt, quantity).then((envelopes) => {
+		return fetchEnvelopes(mailboxId, query, lastEnvelope.dateInt, quantity, getters.getPreference('sort-order')).then((envelopes) => {
 			logger.debug(`fetched ${envelopes.length} messages for mailbox ${mailboxId}`, {
 				envelopes,
 			})
@@ -472,7 +478,7 @@ export default {
 
 		const ids = getters.getEnvelopes(mailboxId, query).map((env) => env.databaseId)
 		logger.debug(`mailbox sync of ${mailboxId} (${query}) has ${ids.length} known IDs`)
-		return syncEnvelopes(mailbox.accountId, mailboxId, ids, query, init)
+		return syncEnvelopes(mailbox.accountId, mailboxId, ids, query, init, getters.getPreference('sort-order'))
 			.then((syncData) => {
 				logger.debug(`mailbox ${mailboxId} (${query}) synchronized, ${syncData.newMessages.length} new, ${syncData.changedMessages.length} changed and ${syncData.vanishedMessages.length} vanished messages`)
 

@@ -27,10 +27,11 @@ export function fetchEnvelope(id) {
 		})
 }
 
-export function fetchEnvelopes(mailboxId, query, cursor, limit) {
+export function fetchEnvelopes(mailboxId, query, cursor, limit, sortOrder) {
 	const url = generateUrl('/apps/mail/api/messages')
 	const params = {
 		mailboxId,
+		sortOrder,
 	}
 
 	if (query) {
@@ -60,7 +61,7 @@ export const fetchThread = async(id) => {
 	return resp.data
 }
 
-export async function syncEnvelopes(accountId, id, ids, query, init = false) {
+export async function syncEnvelopes(accountId, id, ids, query, init = false, sortOrder) {
 	const url = generateUrl('/apps/mail/api/mailboxes/{id}/sync', {
 		id,
 	})
@@ -70,6 +71,7 @@ export async function syncEnvelopes(accountId, id, ids, query, init = false) {
 			ids,
 			query,
 			init,
+			sortOrder,
 		})
 
 		if (response.status === 202) {

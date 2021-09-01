@@ -178,7 +178,7 @@ export default {
 		const listId = normalizedEnvelopeListId(query)
 		const existing = mailbox.envelopeLists[listId] || []
 		const idToDateInt = (id) => state.envelopes[id].dateInt
-		const orderByDateInt = orderBy(idToDateInt, 'desc')
+		const orderByDateInt = orderBy(idToDateInt, state.preferences.sortOrder === 'newest-first' ? 'desc' : 'asc')
 		Vue.set(mailbox.envelopeLists, listId, uniq(orderByDateInt(existing.concat([envelope.databaseId]))))
 
 		const unifiedAccount = state.accounts[UNIFIED_ACCOUNT_ID]

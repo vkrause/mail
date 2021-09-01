@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Mail\Controller;
 
 use Horde_Imap_Client;
+use OCA\Mail\Contracts\IMailSearch;
 use OCA\Mail\Exception\ClientException;
 use OCA\Mail\Exception\IncompleteSyncException;
 use OCA\Mail\Exception\MailboxNotCachedException;
@@ -144,15 +145,20 @@ class MailboxesController extends Controller {
 	 *
 	 * @param int $id
 	 * @param int[] $ids
-	 *
 	 * @param bool $init
+	 * @param string $sortOrder
+	 * @psalm-param IMailSearch::ORDER_* $sortOrder
 	 * @param string|null $query
 	 *
 	 * @return JSONResponse
 	 * @throws ClientException
 	 * @throws ServiceException
 	 */
-	public function sync(int $id, array $ids = [], bool $init = false, string $query = null): JSONResponse {
+	public function sync(int $id,
+						 array $ids = [],
+						 bool $init = false,
+						 string $sortOrder = IMailSearch::ORDER_NEWEST_FIRST,
+						 string $query = null): JSONResponse {
 		$mailbox = $this->mailManager->getMailbox($this->currentUserId, $id);
 		$account = $this->accountService->find($this->currentUserId, $mailbox->getAccountId());
 
@@ -165,6 +171,7 @@ class MailboxesController extends Controller {
 					return (int)$id;
 				}, $ids),
 				!$init,
+				$sortOrder,
 				$query
 			);
 		} catch (MailboxNotCachedException $e) {
