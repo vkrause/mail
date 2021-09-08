@@ -207,7 +207,6 @@ export default {
 
 <style lang="scss" scoped>
 ::v-deep .modal-container {
-	width: 80%;
-	height: 90%;
+	min-width: 50%;
 }
 </style>
