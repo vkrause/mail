@@ -206,7 +206,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@media only screen and (max-width: 600px) {
+	::v-deep .modal-container {
+		max-width: 80%;
+	}
+}
 ::v-deep .modal-container {
-	min-width: 50%;
+	width: 80%;
+}
+::v-deep .modal-wrapper .modal-container {
+	overflow-y: auto;
+	overflow-x: auto;
 }
 </style>
