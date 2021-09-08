@@ -301,7 +301,7 @@ export default {
 			const account = this.$store.getters.getAccount(data.account)
 			if (parseInt(this.$route.params.mailboxId, 10) === account.draftsMailboxId) {
 				this.newDraftId = id
-				this.$router.replace({
+				await this.$router.replace({
 					to: 'message',
 					params: {
 						mailboxId: this.$route.params.mailboxId,
